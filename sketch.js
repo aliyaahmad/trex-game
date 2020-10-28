@@ -10,9 +10,11 @@ var obstaclesGroup, obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obsta
 
 var score=0;
 
-var gameOver, restart;
+var gameOver,gameOverImg 
+ var   restart,restartImg
+var jumpSound , checkPointSound, dieSound
 
-localStorage["HighestScore"] = 0;
+
 
 function preload(){
   trex_running =   loadAnimation("trex1.png","trex3.png","trex4.png");
@@ -31,6 +33,9 @@ function preload(){
   
   gameOverImg = loadImage("gameOver.png");
   restartImg = loadImage("restart.png");
+  jumpSound = loadSound("jump.mp3")
+  dieSound = loadSound("die.mp3")
+  checkPointSound = loadSound("checkPoint.mp3")
 }
 
 function setup() {
@@ -48,10 +53,10 @@ function setup() {
   ground.velocityX = -(6 + 3*score/100);
   
   gameOver = createSprite(300,100);
-  gameOver.addImage(gameOverImg);
+  gameOver.addImage("g1",gameOverImg);
   
   restart = createSprite(300,140);
-  restart.addImage(restartImg);
+  restart.addImage("r1",restartImg);
   
   gameOver.scale = 0.5;
   restart.scale = 0.5;
@@ -75,10 +80,15 @@ function draw() {
   
   if (gameState===PLAY){
     score = score + Math.round(getFrameRate()/60);
+     
+    if(score>0 && score%100 === 0){
+       checkPointSound.play() 
+    }
     ground.velocityX = -(6 + 3*score/100);
   
     if(keyDown("space") && trex.y >= 159) {
       trex.velocityY = -12;
+       jumpSound.play();
     }
   
     trex.velocityY = trex.velocityY + 0.8
@@ -93,6 +103,7 @@ function draw() {
   
     if(obstaclesGroup.isTouching(trex)){
         gameState = END;
+       dieSound.play()
     }
   }
   else if (gameState === END) {
@@ -126,7 +137,7 @@ function spawnClouds() {
   if (frameCount % 60 === 0) {
     var cloud = createSprite(600,120,40,10);
     cloud.y = Math.round(random(80,120));
-    cloud.addImage(cloudImage);
+    cloud.addImage("c1",cloudImage);
     cloud.scale = 0.5;
     cloud.velocityX = -3;
     
@@ -152,17 +163,17 @@ function spawnObstacles() {
     //generate random obstacles
     var rand = Math.round(random(1,6));
     switch(rand) {
-      case 1: obstacle.addImage(obstacle1);
+      case 1: obstacle.addImage("o1",obstacle1);
               break;
-      case 2: obstacle.addImage(obstacle2);
+      case 2: obstacle.addImage("o2",obstacle2);
               break;
-      case 3: obstacle.addImage(obstacle3);
+      case 3: obstacle.addImage("o3",obstacle3);
               break;
-      case 4: obstacle.addImage(obstacle4);
+      case 4: obstacle.addImage("o4",obstacle4);
               break;
-      case 5: obstacle.addImage(obstacle5);
+      case 5: obstacle.addImage("o5",obstacle5);
               break;
-      case 6: obstacle.addImage(obstacle6);
+      case 6: obstacle.addImage("o6",obstacle6);
               break;
       default: break;
     }
@@ -185,11 +196,7 @@ function reset(){
   
   trex.changeAnimation("running",trex_running);
   
-  if(localStorage["HighestScore"]<score){
-    localStorage["HighestScore"] = score;
-  }
-  console.log(localStorage["HighestScore"]);
-  
+ 
   score = 0;
   
 }
